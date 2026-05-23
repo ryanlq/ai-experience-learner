@@ -1,0 +1,22 @@
+[project]
+name = "ai-experience-learner"
+version = "0.3.0"
+description = "Decocted experience CLI — distill past interactions into reusable lessons, retrieve them to improve inference"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=1.26",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+cluster = ["scikit-learn>=1.4"]
+
+[project.scripts]
+xp = "ai_experience_learner.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_experience_learner"]
