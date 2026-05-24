@@ -51,7 +51,11 @@ def mmr_select(
         selected_indices.append(best_idx)
         remaining.discard(best_idx)
 
-    return [candidates[i] for i in selected_indices]
+    result = []
+    for i in selected_indices:
+        candidates[i]["_relevance"] = float(rel_scores[i])
+        result.append(candidates[i])
+    return result
 
 
 def keyword_recall(query: str, candidates: list[dict], top_k: int) -> list[dict]:
@@ -67,4 +71,9 @@ def keyword_recall(query: str, candidates: list[dict], top_k: int) -> list[dict]
         overlap = len(query_words & text_words)
         scored.append((overlap, c))
     scored.sort(key=lambda x: x[0], reverse=True)
-    return [c for _, c in scored[:top_k]]
+    max_overlap = max(len(query_words), 1)
+    result = []
+    for overlap, c in scored[:top_k]:
+        c["_relevance"] = overlap / max_overlap
+        result.append(c)
+    return result

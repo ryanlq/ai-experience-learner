@@ -147,21 +147,29 @@ def cmd_recall(args):
             entry["embedding"] = embed.from_blob(row["embedding"])
         candidates.append(entry)
 
+    # Adaptive top_k: don't return a high percentage of a small DB
+    effective_top_k = min(top_k, max(1, len(candidates) // 5))
+
     query_vec = _do_embed(query, cfg)
     if query_vec is not None and any("embedding" in c for c in candidates):
         pool = [c for c in candidates if "embedding" in c]
-        selected = mmr_select(query_vec, pool, top_k=min(top_k, len(pool)), lam=lam)
+        selected = mmr_select(query_vec, pool, top_k=min(effective_top_k, len(pool)), lam=lam)
     else:
-        selected = keyword_recall(query, candidates, top_k)
+        selected = keyword_recall(query, candidates, effective_top_k)
+
+    # Filter by relevance threshold
+    threshold = cfg.relevance_threshold
+    selected = [s for s in selected if s.get("_relevance", 0) >= threshold]
 
     if not selected:
-        print("No relevant lessons found.")
+        print(f"No relevant lessons found (threshold: {threshold}).")
         return
 
     print(f"<!-- Retrieved {len(selected)} lesson(s) for: {query} -->\n")
     for i, lesson in enumerate(selected, 1):
         tag = "SUCCESS" if lesson["success"] else "FAILURE"
-        print(f"### Lesson {i}: {lesson.get('topic', 'Untitled')} [{tag}]")
+        score = lesson.get("_relevance", 0)
+        print(f"### Lesson {i}: {lesson.get('topic', 'Untitled')} [{tag}] (relevance: {score:.2f})")
         print()
         text = lesson["lesson_text"]
         if len(text) > 600:

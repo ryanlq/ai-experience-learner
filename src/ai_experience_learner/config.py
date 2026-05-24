@@ -13,6 +13,7 @@ DEFAULTS = {
     "config_name": "config.toml",
     "retrieval_top_k": 3,
     "retrieval_lambda": 0.6,
+    "relevance_threshold": 0.5,
     "embedding_api_url": "https://api.openai.com/v1",
     "embedding_api_key_env": "OPENAI_API_KEY",
     "embedding_model": "text-embedding-3-small",
@@ -57,6 +58,7 @@ class Config:
             "[retrieval]",
             f"top_k = {self.retrieval_top_k}",
             f"lambda = {self.retrieval_lambda}",
+            f"relevance_threshold = {self.relevance_threshold}",
             "",
             "[embedding]",
             f'api_url = "{self.embedding_api_url}"',
@@ -109,6 +111,10 @@ class Config:
     @property
     def embedding_dim(self) -> int:
         return int(self._cfg["embedding_dim"])
+
+    @property
+    def relevance_threshold(self) -> float:
+        return float(self._cfg["relevance_threshold"])
 
     @property
     def consolidate_target_size(self) -> int:
