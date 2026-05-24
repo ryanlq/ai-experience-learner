@@ -1,6 +1,6 @@
 [project]
 name = "ai-experience-learner"
-version = "0.3.0"
+version = "0.3.1"
 description = "Decocted experience CLI — distill past interactions into reusable lessons, retrieve them to improve inference"
 requires-python = ">=3.12"
 dependencies = [
